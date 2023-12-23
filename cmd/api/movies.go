@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/0xAckerMan/Lets-Go-Further/internal/data"
+	"github.com/0xAckerMan/Lets-Go-Further/internal/validator"
 )
 
 func (app *Application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,21 @@ func (app *Application) createMovieHandler(w http.ResponseWriter, r *http.Reques
         app.badRequestResponse(w,r,err)
         return
 	}
-	fmt.Fprintf(w, "%+v\n", input)
+
+    movie := &data.Movie{
+        Title: input.Title,
+        Year: input.Year,
+        Runtime: input.Runtime,
+        Genres: input.Genres,
+    }
+
+    v := validator.New()
+
+    if data.ValidateMovie(v, *movie); !v.Valid(){
+        app.failedValidationResponse(w,r,v.Errors)
+        return
+    }
+    app.writeJson(w, http.StatusCreated, envelope{"movie": input}, nil)
 }
 
 func (app *Application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
