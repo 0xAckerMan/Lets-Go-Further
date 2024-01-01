@@ -88,6 +88,46 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	return &movie, nil
 }
 
+func (m MovieModel) Get_all() ([]*Movie, error){
+    query := `
+    SELECT id, created_at, title, year, runtime, genre, version FROM movies
+    ORDER BY id
+    `
+
+    rows, err := m.DB.Query(query)
+    if err != nil{
+        return nil, err
+    }
+
+    defer rows.Close()
+
+    var movies []*Movie
+
+    for rows.Next(){
+        var movie Movie
+        err = rows.Scan(
+            &movie.Id,
+            &movie.CreatedAt,
+            &movie.Title,
+            &movie.Year,
+            &movie.Runtime,
+            pq.Array(&movie.Genres),
+            &movie.Version,
+            )
+        if err != nil{
+            return nil, err
+        }
+
+        movies = append(movies, &movie)
+    }
+
+    if err := rows.Err(); err != nil{
+        return nil, err
+    }
+
+    return movies,nil
+}
+
 func (m MovieModel) Update (movie *Movie) error{
     query := `
     UPDATE movies
