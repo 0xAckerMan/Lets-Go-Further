@@ -48,6 +48,18 @@ func (app *Application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	app.writeJson(w, http.StatusCreated, envelope{"movie": input}, headers)
 }
 
+func (app *Application) allMoviesHandler(w http.ResponseWriter, r *http.Request){
+    movies, err := app.models.Movie.Get_all()
+    if err != nil{
+        app.serverErrorResponse(w,r,err)
+    }
+
+    err = app.writeJson(w,http.StatusOK,envelope{"movies": movies}, nil)
+    if err != nil{
+        app.serverErrorResponse(w,r,err)
+    }
+}
+
 func (app *Application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
