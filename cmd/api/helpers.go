@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/0xAckerMan/Lets-Go-Further/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -94,4 +96,37 @@ func (app *Application) readJson(w http.ResponseWriter, r *http.Request, dst int
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+func (app *Application) readString(qs url.Values, key string, defaultvalue string) string{
+    s := qs.Get(key)
+
+    if s == ""{
+        return defaultvalue
+    }
+
+    return s
+}
+
+func (app *Application) readCSV(qs url.Values, key string, defaultvalue []string) []string{
+    csv := qs.Get(key)
+    if csv == ""{
+        return defaultvalue
+    }
+
+    return strings.Split(csv,",")
+}
+
+func (app *Application) readINT(qs url.Values, key string, defaultvalue int, v *validator.Validator) int {
+    s := qs.Get(key)
+
+    if s == ""{
+        return defaultvalue
+    }
+
+    i, err := strconv.Atoi(s)
+    if err != nil{
+        
+    }
+    return i
 }
